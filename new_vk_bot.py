@@ -16,6 +16,7 @@ def send_picture():
     print('1')
     files = {'photo': open("", 'rb')}
     response = requests.post(upload_url, files=files)
+
     print('2')
     result = json.loads(response.text)
     uploadResult = vk.photos.saveMessagesPhoto(server=result["server"],

@@ -14,9 +14,8 @@ def send_picture():
     data = vk.photos.getMessagesUploadServer(user_id=event.user_id)
     upload_url = data["upload_url"]
     print('1')
-    files = {'photo': open("", 'rb')}
+    files = {'photo': open("/home/www/code/vkbot/weather/weather_new.png", 'rb')}
     response = requests.post(upload_url, files=files)
-
     print('2')
     result = json.loads(response.text)
     uploadResult = vk.photos.saveMessagesPhoto(server=result["server"],
@@ -26,7 +25,9 @@ def send_picture():
     vk.messages.send(user_id=event.user_id,
                         message="Погода в Челябинске",
                         attachment='photo{}_{}'.format(uploadResult[0]["owner_id"],
-                            uploadResult[0]["id"]))
+                            uploadResult[0]["id"]),
+                        random_id=random.randint(0, 2**20),
+                        peer_id=event.peer_id)
     print('4')
 
 # основной блок инициализации бота в вк
@@ -60,7 +61,7 @@ while True:
             if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
                 if event.text.lower() == 'погода' or event.text.lower() == 'сделай погоду' or event.text.lower() == 'погода на сегодня':
                     try:
-                        vk.messages.send(user_id=event.user_id, random_id=1245780, message='Сейчас будет сделано, подожди..')
+                        vk.messages.send(user_id=event.user_id, message='Сейчас будет сделано, подожди..', random_id=random.randint(0, 2**20), peer_id=event.peer_id)
                         print('Запускаю парсер на сегодня')
                         gismeteo_parse(base_url, headers)
                         print('Парсер отработал на сегодня')
@@ -83,25 +84,10 @@ while True:
                         time.sleep(random.randint(1, 2))
                         vk = vk_session.get_api()
                         print('Сработало исключение на vk.messages.send')
-                        while True:
-                            try:
-                                vk.messages.send(user_id=event.user_id, message='Произошла какая-то ошибка подключения к vk.Api, нужно повторить запрос через 10-15 секунд.')
-                                break
-
-                            except:
-                                print('ОСТАНОВКА, ПРОШЛО ВРЕМЯ: {}'.format(time.perf_counter()))
-                                time.sleep(random.randint(1, 15))
-                                longpoll = VkLongPoll(vk_session, wait=25)
-                                time.sleep(random.randint(1, 2))
-                                vk = vk_session.get_api()
-                                print('Сработало исключение WHILE на vk.messages.send')
-                        break
-
 
                 if event.text.lower() == 'погода на завтра' or event.text.lower() == 'сделай погоду на завтра': #Если написали заданную фразу
-                    # if event.from_user: #Если написали в ЛС
                     try:
-                        vk.messages.send(user_id=event.user_id, message='Сейчас нарисую, жди...')
+                        vk.messages.send(user_id=event.user_id, message='Сейчас нарисую, жди...', random_id=random.randint(0, 2**20), peer_id=event.peer_id)
                         print('Запускаю парсер на завтра')
                         gismeteo_parse(base_url_tomorrow, headers)
                         print('Парсер отработал на завтра')
@@ -123,30 +109,6 @@ while True:
                         time.sleep(random.randint(1, 2))
                         vk = vk_session.get_api()
                         print('Сработало исключение на vk.messages.send')
-                        while True:
-                            try:
-                                vk.messages.send(user_id=event.user_id, message='Произошла какая-то ошибка подключения к vk.Api, нужно повторить запрос через 10-15 секунд.')
-                                break
-
-                            except:
-                                print('ОСТАНОВКА, ПРОШЛО ВРЕМЯ: {}'.format(time.perf_counter()))
-                                time.sleep(random.randint(1, 15))
-                                longpoll = VkLongPoll(vk_session, wait=25)
-                                time.sleep(random.randint(1, 2))
-                                vk = vk_session.get_api()
-                                print('Сработало исключение WHILE на vk.messages.send')
-                        break
-
-    # except requests.exceptions.ConnectionResetError:
-    #     longpoll = VkLongPoll(vk_session, wait=25)
-    #     vk = vk_session.get_api()
-    #     print('Сработало исключение ConnectionResetError, пытаюсь переподключится!')
-
-    # except requests.exceptions.ConnectionError:
-    #     longpoll = VkLongPoll(vk_session, wait=25)
-    #     vk = vk_session.get_api()
-    #     print('Сработало исключение ConnectionError, пытаюсь переподключится!')
-
     except:
         print('ОСТАНОВКА, ПРОШЛО ВРЕМЯ: {}'.format(time.perf_counter()))
         time.sleep(random.randint(1, 15))
